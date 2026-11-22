@@ -161,7 +161,7 @@
       border: 1px solid var(--border); border-left: 3px solid var(--accent);
       border-radius: 16px; padding: 15px; transition: 0.2s;
     }
-    .user-card.is-suspended { border-left-color: var(--red); opacity: 0.88; }
+    .user-card.is-blocked { border-left-color: var(--red); opacity: 0.88; }
     .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
     .u-email { font-size: 14px; font-weight: 800; color: #fff; word-break: break-all; }
     .pill {
@@ -169,7 +169,7 @@
       text-transform: uppercase; letter-spacing: 0.8px; flex-shrink: 0;
     }
     .pill-active { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
-    .pill-suspended { background: rgba(244,63,94,0.15); color: var(--red); border: 1px solid rgba(244,63,94,0.3); }
+    .pill-blocked { background: rgba(244,63,94,0.15); color: var(--red); border: 1px solid rgba(244,63,94,0.3); }
 
     .meta-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
@@ -178,16 +178,16 @@
     }
     .meta-grid strong { color: #e2e8f0; font-family: ui-monospace, monospace; display: block; margin-top: 2px; font-size: 12px; word-break: break-all; }
 
-    .card-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .card-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
     .act-btn {
       border: 1px solid var(--border); background: var(--surface-2); color: #e2e8f0;
-      padding: 9px 6px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+      padding: 9px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;
       text-align: center;
     }
     .act-btn:active { transform: scale(0.95); }
     .act-copy { border-color: rgba(0,229,255,0.35); color: var(--accent-light); background: rgba(0,229,255,0.08); }
-    .act-suspend { border-color: rgba(244,63,94,0.35); color: #fda4af; background: rgba(244,63,94,0.1); }
-    .act-activate { border-color: rgba(16,185,129,0.35); color: #6ee7b7; background: rgba(16,185,129,0.1); }
+    .act-block { border-color: rgba(244,63,94,0.35); color: #fda4af; background: rgba(244,63,94,0.1); }
+    .act-active { border-color: rgba(16,185,129,0.35); color: #6ee7b7; background: rgba(16,185,129,0.1); }
     .act-reset { border-color: rgba(234,179,8,0.35); color: #fde047; background: rgba(234,179,8,0.08); }
 
     .fab {
@@ -241,15 +241,13 @@
 <body>
   <div class="bg-glow"></div>
 
-  <!-- VIP LOCK SCREEN (URL ALREADY PRE-CONFIGURED) -->
+  <!-- VIP LOCK SCREEN (PIN: 786) -->
   <div id="lock-screen">
     <div class="lock-card">
       <div class="lock-logo">Ø</div>
       <div class="lock-title">OMNI <span>HUB</span></div>
       <div class="lock-sub">VIP LICENSE CONTROL SYSTEM</div>
-
-      <input type="password" id="pin-input" class="pin-input" placeholder="••••••" inputmode="numeric" />
-
+      <input type="password" id="pin-input" class="pin-input" placeholder="•••" inputmode="numeric" />
       <button class="btn-primary" id="btn-unlock">UNLOCK PANEL</button>
       <div id="lock-err" style="color:#f43f5e; font-size:12px; margin-top:12px; font-weight:700; display:none;"></div>
     </div>
@@ -282,17 +280,17 @@
         <div class="stat-lbl">Active</div>
       </div>
       <div class="stat-card">
-        <div class="stat-num" id="st-suspended" style="color: var(--red);">0</div>
-        <div class="stat-lbl">Suspended</div>
+        <div class="stat-num" id="st-blocked" style="color: var(--red);">0</div>
+        <div class="stat-lbl">Blocked</div>
       </div>
     </div>
 
     <div class="controls-bar">
-      <input type="text" id="search-box" class="search-input" placeholder="Search client email, key, or device..." />
+      <input type="text" id="search-box" class="search-input" placeholder="Search email, password, or device ID..." />
       <div class="tabs">
         <button class="tab-btn active" data-filter="all">All</button>
         <button class="tab-btn" data-filter="active">Active</button>
-        <button class="tab-btn" data-filter="suspended">Suspended</button>
+        <button class="tab-btn" data-filter="blocked">Blocked</button>
       </div>
     </div>
 
@@ -301,11 +299,11 @@
 
   <button class="fab" id="btn-open-modal">+ ADD CLIENT</button>
 
-  <!-- ADD / EDIT CLIENT MODAL -->
+  <!-- ADD CLIENT MODAL -->
   <div class="modal-bg" id="add-modal">
     <div class="modal-box">
       <div class="modal-head">
-        <div class="modal-title">NEW / UPDATE LICENSE</div>
+        <div class="modal-title">NEW CLIENT</div>
         <button class="close-x" id="btn-close-modal">&times;</button>
       </div>
       <div class="field">
@@ -313,20 +311,48 @@
         <input type="email" id="in-email" placeholder="client@gmail.com" />
       </div>
       <div class="field">
-        <label>License Key / Password</label>
+        <label>Password / Key</label>
         <div class="key-row">
-          <input type="text" id="in-key" placeholder="OMNI-XXXXX-2026" />
+          <input type="text" id="in-pass" placeholder="OMNI-XXXXX-2026" />
           <button class="gen-btn" id="btn-gen">⚡ AUTO</button>
         </div>
       </div>
       <div class="field">
+        <label>Expiry Date (Optional)</label>
+        <input type="text" id="in-expiry" placeholder="2026-12-31" />
+      </div>
+      <div class="field">
         <label>Status</label>
         <select id="in-status">
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
+          <option value="Active">Active</option>
+          <option value="Blocked">Blocked</option>
         </select>
       </div>
-      <button class="btn-primary" id="btn-save-user" style="margin-top:6px;">SAVE LICENSE</button>
+      <button class="btn-primary" id="btn-save-user" style="margin-top:6px;">ADD CLIENT</button>
+    </div>
+  </div>
+
+  <!-- EDIT CLIENT MODAL -->
+  <div class="modal-bg" id="edit-modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">EDIT CLIENT</div>
+        <button class="close-x" id="btn-close-edit">&times;</button>
+      </div>
+      <input type="hidden" id="ed-row" />
+      <div class="field">
+        <label>Client Email</label>
+        <input type="text" id="ed-email" disabled style="opacity:0.6;" />
+      </div>
+      <div class="field">
+        <label>Password / Key</label>
+        <input type="text" id="ed-pass" />
+      </div>
+      <div class="field">
+        <label>Expiry Date</label>
+        <input type="text" id="ed-expiry" placeholder="2026-12-31" />
+      </div>
+      <button class="btn-primary" id="btn-update-user" style="margin-top:6px;">UPDATE CLIENT</button>
     </div>
   </div>
 
@@ -343,7 +369,7 @@
       </div>
       <div class="field">
         <label>Admin PIN</label>
-        <input type="password" id="set-pin" placeholder="786786" />
+        <input type="password" id="set-pin" placeholder="786" />
       </div>
       <button class="btn-primary" id="btn-save-settings" style="margin-top:6px;">UPDATE &amp; RECONNECT</button>
     </div>
@@ -358,19 +384,16 @@
       c.width = 512; c.height = 512;
       const ctx = c.getContext("2d");
 
-      // Dark matte background
       const bg = ctx.createRadialGradient(256, 120, 30, 256, 256, 360);
       bg.addColorStop(0, "#0c2236");
       bg.addColorStop(1, "#05070d");
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, 512, 512);
 
-      // Subtle glowing border
       ctx.strokeStyle = "rgba(0, 229, 255, 0.35)";
       ctx.lineWidth = 14;
       ctx.strokeRect(24, 24, 464, 464);
 
-      // Glowing Cyan Circle (Ø symbol)
       ctx.shadowColor = "#00e5ff";
       ctx.shadowBlur = 28;
       ctx.strokeStyle = "#00e5ff";
@@ -379,14 +402,12 @@
       ctx.arc(256, 232, 118, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Diagonal Slash
       ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(155, 333);
       ctx.lineTo(357, 131);
       ctx.stroke();
 
-      // OMNI HUB text at bottom
       ctx.shadowBlur = 10;
       ctx.fillStyle = "#ffffff";
       ctx.font = "900 48px Arial, sans-serif";
@@ -410,8 +431,8 @@
     })();
 
     const DEFAULT_URL = "https://script.google.com/macros/s/AKfycbyZ7bC78JcHhsL2CKg36g1uWDRlEK0p5nWtrMY68RQpxVMfa6EX2J-hD9wtw1MPb0LG/exec";
-    let apiUrl = localStorage.getItem("OMNIHUB_URL") || DEFAULT_URL;
-    let adminPin = localStorage.getItem("OMNIHUB_PIN") || "";
+    let apiUrl = localStorage.getItem("OMNIHUB_V2_URL") || DEFAULT_URL;
+    let adminPin = localStorage.getItem("OMNIHUB_V2_PIN") || "";
     let users = [];
     let currentFilter = "all";
 
@@ -426,26 +447,26 @@
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ ...payload, adminPin })
+        body: JSON.stringify({ ...payload, pin: adminPin })
       });
       return JSON.parse(await res.text());
     }
 
     function render() {
       const q = document.getElementById("search-box").value.trim().toLowerCase();
-      const activeCount = users.filter(u => u.status.toLowerCase() === "active").length;
+      const activeCount = users.filter(u => String(u.status || "").toLowerCase() === "active").length;
       document.getElementById("st-total").textContent = users.length;
       document.getElementById("st-active").textContent = activeCount;
-      document.getElementById("st-suspended").textContent = users.length - activeCount;
+      document.getElementById("st-blocked").textContent = users.length - activeCount;
 
       const filtered = users.filter(u => {
-        const isAct = u.status.toLowerCase() === "active";
+        const isAct = String(u.status || "").toLowerCase() === "active";
         if (currentFilter === "active" && !isAct) return false;
-        if (currentFilter === "suspended" && isAct) return false;
+        if (currentFilter === "blocked" && isAct) return false;
         if (!q) return true;
-        return u.email.toLowerCase().includes(q) ||
-               u.licenseKey.toLowerCase().includes(q) ||
-               u.deviceId.toLowerCase().includes(q);
+        return String(u.email || "").toLowerCase().includes(q) ||
+               String(u.password || "").toLowerCase().includes(q) ||
+               String(u.deviceId || "").toLowerCase().includes(q);
       });
 
       const list = document.getElementById("user-list");
@@ -455,26 +476,30 @@
       }
 
       list.innerHTML = filtered.map(u => {
-        const isAct = u.status.toLowerCase() === "active";
-        const nextSt = isAct ? "suspended" : "active";
-        const enc = encodeURIComponent(u.email);
-        const encKey = encodeURIComponent(u.licenseKey);
+        const isAct = String(u.status || "").toLowerCase() === "active";
+        const nextSt = isAct ? "Blocked" : "Active";
+        const encEmail = encodeURIComponent(u.email || "");
+        const encPass = encodeURIComponent(u.password || "");
+        const encExp = encodeURIComponent(u.expiry || "");
+
         return `
-          <div class="user-card ${isAct ? "" : "is-suspended"}">
+          <div class="user-card ${isAct ? "" : "is-blocked"}">
             <div class="card-top">
               <div class="u-email">${u.email}</div>
-              <span class="pill ${isAct ? "pill-active" : "pill-suspended"}">${u.status}</span>
+              <span class="pill ${isAct ? "pill-active" : "pill-blocked"}">${u.status}</span>
             </div>
             <div class="meta-grid">
-              <div>License Key<strong>${u.licenseKey}</strong></div>
-              <div>Session<strong>${u.sessionToken ? "🟢 Online" : "⚪ Offline"}</strong></div>
-              <div style="grid-column: span 2;">Device Lock<strong>${u.deviceId || "🔓 Open (Not Bound)"}</strong></div>
+              <div>Password<strong>${u.password}</strong></div>
+              <div>Session<strong>${u.activeToken ? "🟢 Online" : "⚪ Offline"}</strong></div>
+              <div>Expiry<strong>${u.expiry || "♾️ Lifetime"}</strong></div>
+              <div>Device Lock<strong>${u.deviceId || "🔓 Open"}</strong></div>
             </div>
             <div class="card-actions">
-              <button class="act-btn act-copy" onclick="copyCreds('${enc}','${encKey}')">📋 Copy</button>
-              <button class="act-btn ${isAct ? "act-suspend" : "act-activate"}" onclick="setStatus('${enc}','${nextSt}')">${isAct ? "⛔ Block" : "✅ Active"}</button>
-              <button class="act-btn act-reset" onclick="resetDev('${enc}')">🔄 Reset</button>
-              <button class="act-btn" onclick="delUser('${enc}')">🗑 Del</button>
+              <button class="act-btn act-copy" onclick="copyCreds('${encEmail}','${encPass}','${encExp}')">📋 Copy</button>
+              <button class="act-btn ${isAct ? "act-block" : "act-active"}" onclick="toggleSt(${u.row},'${nextSt}')">${isAct ? "⛔ Block" : "✅ Active"}</button>
+              <button class="act-btn act-reset" onclick="resetDev(${u.row})">🔄 Reset</button>
+              <button class="act-btn" onclick="openEdit(${u.row},'${encEmail}','${encPass}','${encExp}')">✏️ Edit</button>
+              <button class="act-btn" onclick="delUser(${u.row},'${encEmail}')">🗑 Del</button>
             </div>
           </div>
         `;
@@ -484,10 +509,10 @@
     async function loadUsers(fromLock = false) {
       try {
         const data = await api({ action: "getUsers" });
-        if (data.status !== "success") throw new Error(data.message || "Invalid PIN");
+        if (!data.ok) throw new Error(data.error || "Wrong Admin PIN!");
         users = data.users || [];
-        localStorage.setItem("OMNIHUB_URL", apiUrl);
-        localStorage.setItem("OMNIHUB_PIN", adminPin);
+        localStorage.setItem("OMNIHUB_V2_URL", apiUrl);
+        localStorage.setItem("OMNIHUB_V2_PIN", adminPin);
         document.getElementById("lock-screen").style.display = "none";
         document.getElementById("app").style.display = "block";
         document.getElementById("lock-err").style.display = "none";
@@ -504,33 +529,54 @@
       }
     }
 
-    window.copyCreds = (encEmail, encKey) => {
+    window.copyCreds = (encEmail, encPass, encExp) => {
       const email = decodeURIComponent(encEmail);
-      const key = decodeURIComponent(encKey);
-      const txt = `✨ OMNI HUB VIP ACCESS ✨\nEmail: ${email}\nKey: ${key}`;
+      const pass = decodeURIComponent(encPass);
+      const exp = decodeURIComponent(encExp);
+      const txt = `✨ OMNI HUB VIP ACCESS ✨\nEmail: ${email}\nPassword: ${pass}${exp ? "\nExpiry: " + exp : ""}`;
       navigator.clipboard.writeText(txt).then(() => toast("Copied for WhatsApp ✓"));
     };
 
-    window.setStatus = async (encEmail, status) => {
-      const email = decodeURIComponent(encEmail);
-      const res = await api({ action: "updateStatus", email, status });
-      if (res.status === "success") { toast(`${email} → ${status}`); loadUsers(); }
-      else toast(res.message, true);
+    window.toggleSt = async (row, status) => {
+      const res = await api({ action: "toggleStatus", row, status });
+      if (res.ok) { toast(`Status → ${status}`); loadUsers(); }
+      else toast(res.error || "Failed", true);
     };
 
-    window.resetDev = async (encEmail) => {
-      const email = decodeURIComponent(encEmail);
-      const res = await api({ action: "resetDevice", email });
-      if (res.status === "success") { toast("Device Lock Reset ✓"); loadUsers(); }
-      else toast(res.message, true);
+    window.resetDev = async (row) => {
+      const res = await api({ action: "resetDevice", row });
+      if (res.ok) { toast("Device & Token Reset ✓"); loadUsers(); }
+      else toast(res.error || "Failed", true);
     };
 
-    window.delUser = async (encEmail) => {
+    window.delUser = async (row, encEmail) => {
       const email = decodeURIComponent(encEmail);
       if (!confirm(`Delete ${email}?`)) return;
-      const res = await api({ action: "deleteUser", email });
-      if (res.status === "success") { toast("Client Deleted"); loadUsers(); }
-      else toast(res.message, true);
+      const res = await api({ action: "deleteUser", row });
+      if (res.ok) { toast("Client Deleted"); loadUsers(); }
+      else toast(res.error || "Failed", true);
+    };
+
+    const editModal = document.getElementById("edit-modal");
+    window.openEdit = (row, encEmail, encPass, encExp) => {
+      document.getElementById("ed-row").value = row;
+      document.getElementById("ed-email").value = decodeURIComponent(encEmail);
+      document.getElementById("ed-pass").value = decodeURIComponent(encPass);
+      document.getElementById("ed-expiry").value = decodeURIComponent(encExp);
+      editModal.classList.add("open");
+    };
+    document.getElementById("btn-close-edit").onclick = () => editModal.classList.remove("open");
+    editModal.onclick = (e) => { if (e.target === editModal) editModal.classList.remove("open"); };
+    document.getElementById("btn-update-user").onclick = async () => {
+      const row = Number(document.getElementById("ed-row").value);
+      const password = document.getElementById("ed-pass").value.trim();
+      const expiry = document.getElementById("ed-expiry").value.trim();
+      const res = await api({ action: "updateUser", row, password, expiry });
+      if (res.ok) {
+        editModal.classList.remove("open");
+        toast("Client Updated ✓");
+        loadUsers();
+      } else toast(res.error || "Failed", true);
     };
 
     document.getElementById("btn-unlock").onclick = () => {
@@ -546,7 +592,7 @@
     document.getElementById("pin-input").addEventListener("keypress", e => { if (e.key === "Enter") document.getElementById("btn-unlock").click(); });
 
     document.getElementById("btn-lock").onclick = () => {
-      localStorage.removeItem("OMNIHUB_PIN");
+      localStorage.removeItem("OMNIHUB_V2_PIN");
       adminPin = "";
       document.getElementById("pin-input").value = "";
       document.getElementById("app").style.display = "none";
@@ -587,22 +633,24 @@
 
     document.getElementById("btn-gen").onclick = () => {
       const r = Math.random().toString(36).substring(2, 7).toUpperCase();
-      document.getElementById("in-key").value = `OMNI-${r}-2026`;
+      document.getElementById("in-pass").value = `OMNI-${r}-2026`;
     };
 
     document.getElementById("btn-save-user").onclick = async () => {
       const email = document.getElementById("in-email").value.trim().toLowerCase();
-      const licenseKey = document.getElementById("in-key").value.trim();
+      const password = document.getElementById("in-pass").value.trim();
+      const expiry = document.getElementById("in-expiry").value.trim();
       const status = document.getElementById("in-status").value;
-      if (!email || !licenseKey) { toast("Email & Key required", true); return; }
-      const res = await api({ action: "upsertUser", email, licenseKey, status });
-      if (res.status === "success") {
+      if (!email || !password) { toast("Email & Password required", true); return; }
+      const res = await api({ action: "addUser", email, password, status, expiry });
+      if (res.ok) {
         modal.classList.remove("open");
         document.getElementById("in-email").value = "";
-        document.getElementById("in-key").value = "";
-        toast("License Saved ✓");
+        document.getElementById("in-pass").value = "";
+        document.getElementById("in-expiry").value = "";
+        toast("Client Added ✓");
         loadUsers();
-      } else toast(res.message, true);
+      } else toast(res.error || "Failed", true);
     };
 
     if (adminPin) {
